@@ -106,9 +106,11 @@ void Chip8::loadGame(const char *path){
 
 //emulate a cycle of the chip-8
 void Chip8::emulateCycle(){
-    //for drawing the sprite later
+    //for drawing the sprite later (opcode DXYN)
     int x,y,height,width;
     bool changed, pixelSet;
+    //for waiting for a key press later (opcode FX0A)
+    bool keyPressed;
 
     //fetch
     opcode = memory[pc] << 8 | memory[pc+1];
@@ -276,8 +278,56 @@ void Chip8::emulateCycle(){
         //F000: various
         case 0xF000:
             switch(opcode & 0xFF){
+                //FX07: set Vx to delay timer value
                 case 0x7:
                     V[(opcode & 0xF00) >> 8] = delay_timer;
+                    break;
+                //FX0A: wait for a key press then store that value in Vx
+                case 0xA:
+                    keyPressed = false;
+                    for(int i = 0; i < 16; i++){
+                        if(key[i]){
+                            V[(opcode & 0xF00) >> 8] = i;
+                            keyPressed = true;
+                        }
+                    }
+                    //if not pressed then return (go back to main to check for input)
+                    //since pc is the same it'll come back here
+                    if(!keyPressed) return;
+                    break;
+                //FX15: set delay timer to Vx
+                case 0x15:
+                    delay_timer = V[(opcode & 0xF00) >> 8];
+                    break;
+                //FX18: set sound timer to Vx
+                case 0x18:
+                    sound_timer = V[(opcode & 0xF00) >> 8];
+                    break;
+                //FX1E: I += Vx
+                case 0x1E:
+                    I += V[(opcode & 0xF00) >> 8];
+                    break;
+                //FX29: I = sprite_addr[Vx]
+                case 0x29:
+                    I = V[(opcode & 0xF00) >> 8] * 0x5;
+                    break;
+                //FX33: binary-encoded-decimal(Vx) -> memory(I | I+1 | I+2)
+                case 0x33:
+                    memory[I] = (uint8_t) (V[(opcode & 0xF00) >> 8] / 100);
+                    memory[I+1] = ((uint8_t) (V[(opcode & 0xF00) >> 8]/10)) % 10;
+                    memory[I+2] = V[(opcode & 0xF00) >> 8] % 10;
+                    break;
+                //FX55: store V0-VX inclusive in memory starting from I, but don't modify I
+                case 0x55:
+                    for(int i = 0; i <= (opcode & 0xF00) >> 8; i++){
+                        memory[I + i] = V[i]; 
+                    }
+                    break;
+                //FX65: fill V0-VX with values in memory starting from I, but don't modify I
+                case 0x65:
+                    for(int i = 0; i <= (opcode & 0xF00) >> 8; i++){
+                        V[i] = memory[I+i]; 
+                    }
                     break;
             }
             pc += 2;
