@@ -111,9 +111,9 @@ void Chip8::emulateCycle(){
     bool changed, pixelSet;
     //for waiting for a key press later (opcode FX0A)
     bool keyPressed;
-
     //fetch
     opcode = memory[pc] << 8 | memory[pc+1];
+
     //decode with switch, execute in the conditional
     //note that the and is because the first 4 bits are the code, the rest is an address
     switch(opcode & 0xF000){
@@ -177,13 +177,13 @@ void Chip8::emulateCycle(){
                     V[(opcode & 0xF00) >> 8] = V[(opcode & 0xF0) >> 4];
                     break;
                 case 1:
-                    V[(opcode & 0xF00) >> 8] = V[(opcode & 0xF00) >> 8] | V[(opcode & 0xF0) >> 4];
+                    V[(opcode & 0xF00) >> 8] |= V[(opcode & 0xF0) >> 4];
                     break;
                 case 2:
-                    V[(opcode & 0xF00) >> 8] = V[(opcode & 0xF00) >> 8] & V[(opcode & 0xF0) >> 4];
+                    V[(opcode & 0xF00) >> 8] &= V[(opcode & 0xF0) >> 4];
                     break;
                 case 3:
-                    V[(opcode & 0xF00) >> 8] = V[(opcode & 0xF00) >> 8] ^ V[(opcode & 0xF0) >> 4];
+                    V[(opcode & 0xF00) >> 8] ^= V[(opcode & 0xF0) >> 4];
                     break;
                 case 4:
                     //overflow check
@@ -194,18 +194,28 @@ void Chip8::emulateCycle(){
                     //add
                     V[(opcode & 0xF00) >> 8] += V[(opcode & 0xF0) >> 4];
                     break;
+                //if the subtraction will end up negative, set Vf to 0
                 case 5:
+                    V[0xF] = 1;
+                    if(V[(opcode & 0xF0) >> 4] > V[(opcode & 0xF00) >> 8]){
+                        V[0xF] = 0;
+                    }
                     V[(opcode & 0xF00) >> 8] -= V[(opcode & 0xF0) >> 4];
                     break;
                 case 6:
                     V[0xF] = V[(opcode & 0xF00) >> 8] & 1;
                     V[(opcode & 0xF00) >> 8] >>= 1;
                     break;
+                //if the subtraction will end up negative, set Vf to 0
                 case 7:
+                    V[0xF] = 1;
+                    if(V[(opcode & 0xF00) >> 8] > V[(opcode & 0xF0) >> 4]){
+                        V[0xF] = 0;
+                    }
                     V[(opcode & 0xF00) >> 8] = V[(opcode & 0xF0) >> 4] - V[(opcode & 0xF00) >> 8];
                     break;
                 case 0xE:
-                    V[0xF] = (V[(opcode & 0xF00) >> 8] & 8) >> 3;
+                    V[0xF] = (V[(opcode & 0xF00) >> 8]) >> 7;
                     V[(opcode & 0xF00) >> 8] <<= 1;
                     break; 
             }
@@ -305,6 +315,10 @@ void Chip8::emulateCycle(){
                     break;
                 //FX1E: I += Vx
                 case 0x1E:
+                    if(I + V[(opcode & 0xF00) >> 8] > 0xFFF)
+                        V[0xF] = 1;
+                    else
+                        V[0xF] = 0;
                     I += V[(opcode & 0xF00) >> 8];
                     break;
                 //FX29: I = sprite_addr[Vx]
@@ -322,12 +336,14 @@ void Chip8::emulateCycle(){
                     for(int i = 0; i <= (opcode & 0xF00) >> 8; i++){
                         memory[I + i] = V[i]; 
                     }
+                    I += ((opcode & 0xF00) >> 8) + 1;
                     break;
                 //FX65: fill V0-VX with values in memory starting from I, but don't modify I
                 case 0x65:
                     for(int i = 0; i <= (opcode & 0xF00) >> 8; i++){
                         V[i] = memory[I+i]; 
                     }
+                    I += ((opcode & 0xF00) >> 8) + 1;
                     break;
             }
             pc += 2;
