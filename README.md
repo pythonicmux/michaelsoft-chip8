@@ -5,6 +5,12 @@ I'm doing this just as an intro so I can actually kind of understand how to writ
 
 It's a pretty simple project: there's a chip-8 class, and the main file just takes in a ROM file input and loads up a chip-8 machine with the ROM file. If you look at the chip8.cpp file, its emulation cycle function is a simple fetch (look at where the program counter is and get the instruction), decode (a giant switch statement LOL depending on the instruction) and execute (the code inside each condition that modifies the state).
 
+Before compiling and running, install SDL2! For Mac, it's just
+```
+brew install sdl2
+```
+If you get a linking error, you may have to use chown on some directories to get permissions for brew to install sdl2.
+
 To start up to compile the project, run 
 ```
 cmake .
