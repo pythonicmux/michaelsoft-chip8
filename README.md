@@ -11,7 +11,17 @@ cmake .
 make
 ```
 
-It's not done yet, but when it is done, to run it use
+To run the executable use
 ```
 ./michaelsoft-chip8 <ROM>
 ```
+
+The chip-8 has a hex keyboard (16 keys), and those keys are mapped to the keyboard as such:
+'''
+ CHIP-8          KEYBOARD
+ 1 2 3 C         1 2 3 4
+ 4 5 6 D         Q W E R
+ 7 8 9 E         A S D F
+ A 0 B F         Z X C V
+'''
+I haven't actually played all the ROMs out there yet, but from the ones I've messed around with, keys 123,QWE and ASD on the computer keyboard generally dictate movement for the player in the games. Have fun!
