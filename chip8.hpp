@@ -13,7 +13,7 @@ class Chip8{
         unsigned short stack[16]; //stack is 16 "levels" (I'm guessing a level is the size of a stack frame)
         unsigned short sp;  //stack pointer
     public:
-        uint8_t sound_timer; //counts down to 0, when value is nonzero it beeps
+        uint8_t sound_timer; //timer for sound, if > 0 it beeps
         Chip8();
         ~Chip8();
         bool drawFlag; //indicates a redraw needs to occur

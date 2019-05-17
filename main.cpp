@@ -7,11 +7,10 @@
 using namespace std;
 
 uint8_t keys[16] = {
-	SDLK_z, SDLK_x, SDLK_c, SDLK_v,
-	SDLK_a, SDLK_s, SDLK_d, SDLK_f,
-	SDLK_q, SDLK_w, SDLK_e, SDLK_r,
-
-	SDLK_1, SDLK_2, SDLK_3, SDLK_4
+	SDLK_x, SDLK_1, SDLK_2, SDLK_3,
+	SDLK_q, SDLK_w, SDLK_e, SDLK_a,
+	SDLK_s, SDLK_d, SDLK_z, SDLK_c,
+	SDLK_4, SDLK_r, SDLK_f, SDLK_v
 };
 
 int main(int argc, char *argv[]) {
@@ -82,25 +81,25 @@ int main(int argc, char *argv[]) {
 				}
 			}
 
-			//re-draw if the draw flag is set
-			if(chip8.drawFlag){
-				chip8.drawFlag = false;
-
-				for(int i = 0; i < 2048; i++){
-					buffer[i] = (0xFFFFFF * chip8.gfx[i]) | 0xFF000000; // set pixel is ~0, not set pixel is 0xFF000000
-				}
-
-				//update SDL texture
-				SDL_UpdateTexture(texture, NULL, buffer, 64 * sizeof(uint32_t));
-				SDL_RenderClear(renderer);
-				SDL_RenderCopy(renderer, texture, NULL, NULL);
-				SDL_RenderPresent(renderer);
-			}
-
 			//play sound if the sound timer > 0
 		}
 
+		//re-draw if the draw flag is set
+		if(chip8.drawFlag){
+			chip8.drawFlag = false;
+
+			for(int i = 0; i < 2048; i++){
+				buffer[i] = (0xFFFFFF * chip8.gfx[i]) | 0xFF000000; // set pixel is ~0, not set pixel is 0xFF000000
+			}
+
+			//update SDL texture
+			SDL_UpdateTexture(texture, NULL, buffer, 64 * sizeof(uint32_t));
+			SDL_RenderClear(renderer);
+			SDL_RenderCopy(renderer, texture, NULL, NULL);
+			SDL_RenderPresent(renderer);
+		}
+
 		//slow down emulation speed by slowing it down here 
-        std::this_thread::sleep_for(std::chrono::microseconds(1000));
+        std::this_thread::sleep_for(std::chrono::microseconds(1500));
 	}
 }
