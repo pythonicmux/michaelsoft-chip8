@@ -338,7 +338,6 @@ void Chip8::emulateCycle(){
     //update timers
     if(delay_timer > 0) delay_timer--;
     if(sound_timer > 0){
-        cout << "BEEP" << endl;
         sound_timer--;
     }
 }

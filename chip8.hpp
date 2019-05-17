@@ -10,10 +10,10 @@ class Chip8{
         unsigned short I; //address register (0x0 - 0xFFF)
         unsigned short pc; //program counter (0x0 - 0xFFF)
         uint8_t delay_timer; //counts down to 0, used to time events in games
-        uint8_t sound_timer; //counts down to 0, when value is nonzero it beeps
         unsigned short stack[16]; //stack is 16 "levels" (I'm guessing a level is the size of a stack frame)
         unsigned short sp;  //stack pointer
     public:
+        uint8_t sound_timer; //counts down to 0, when value is nonzero it beeps
         Chip8();
         ~Chip8();
         bool drawFlag; //indicates a redraw needs to occur
